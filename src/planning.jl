@@ -65,7 +65,12 @@ function _plan(times::AbstractVector{<:Real}, signal::AbstractVector{R1}, sumw::
         end
         YY = w ⋅ (y .^ 2)
         N = length(frequencies)
-        Nfft = nextpow(2, N * oversampling)
+        # From http://www.fftw.org/fftw2_doc/fftw_3.html:
+        #
+        #   > FFTW is best at handling sizes of the form
+        #   >   2^a * 3^b * 5^c * 7^d * 11^e ^ 13^f
+        #   > where e+f is either 0 or 1, and the other exponents are arbitrary.
+        Nfft = nextprod([2, 3, 5, 7], N * oversampling)
         T = promote_type(float(R1), float(R2))
         bfft_vect = Vector{Complex{T}}(undef, Nfft)
         bfft_grid = Vector{Complex{T}}(undef, Nfft)
